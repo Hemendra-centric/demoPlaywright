@@ -10,14 +10,6 @@ public class LoginTest extends BaseTest {
     @Test
     void loginWithFakeUserData() throws InterruptedException {
 
-        if (3 > 2) {
-
-        }
-        try {
-
-        } catch (Exception e) {
-
-        }
         getPage().navigate("https://example.com/login");
 
         String email = TestDataGenerator.randomEmail();

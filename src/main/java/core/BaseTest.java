@@ -8,11 +8,6 @@ public abstract class BaseTest {
 
     private Page page;
     private BrowserContext context;
-    private String str = "";
-    private String testurl = "dffffffffffff";
-
-    public void DoStuff() {
-    }
     // Lifecycle handled by BrowserExtension
 
     // Accessors to ensure fields are referenced (avoid static analysis unused-field
