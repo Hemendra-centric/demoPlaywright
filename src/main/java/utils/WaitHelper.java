@@ -1,5 +1,6 @@
 package utils;
 
+import com.microsoft.playwright.Locator;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,29 @@ public final class WaitHelper {
 
     private WaitHelper() {
         // Utility class - no instantiation
+    }
+
+    /**
+     * Wait for an element to be visible.
+     *
+     * @param locator     the Playwright locator
+     * @param description description of the element
+     * @throws TimeoutException if element is not visible within timeout
+     */
+    public static void waitForElement(final Locator locator, final String description) {
+        waitForElement(locator, description, DEFAULT_TIMEOUT_MS);
+    }
+
+    /**
+     * Wait for an element to be visible with custom timeout.
+     *
+     * @param locator     the Playwright locator
+     * @param description description of the element
+     * @param timeoutMs   timeout in milliseconds
+     * @throws TimeoutException if element is not visible within timeout
+     */
+    public static void waitForElement(final Locator locator, final String description, final int timeoutMs) {
+        waitFor(() -> locator.isVisible(), "Element visible: " + description, timeoutMs);
     }
 
     /**

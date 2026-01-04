@@ -301,10 +301,9 @@ public final class AccessibilityUtil {
             final Map<String, Object> report = new HashMap<>();
             report.put("pageName", pageName);
             report.put("timestamp", timestamp);
-            report.put("violations", results.getViolations().size());
-            report.put("passes", results.getPasses().size());
-            report.put("inapplicable", results.getInapplicable().size());
-            report.put("results", results);
+            report.put("violationCount", results.getViolations().size());
+            report.put("passCount", results.getPasses().size());
+            report.put("inapplicableCount", results.getInapplicable().size());
 
             Files.write(reportPath, gson.toJson(report).getBytes(StandardCharsets.UTF_8));
             logger.info("✓ Accessibility report generated: {}", reportPath);
