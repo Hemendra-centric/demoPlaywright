@@ -4,19 +4,78 @@
         "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
+    <property name="severity" value="warning"/>
+    <property name="charset" value="UTF-8"/>
+
+    <!-- File length -->
+    <module name="FileLength">
+        <property name="max" value="2000"/>
+    </module>
+
+    <!-- Line length -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    </module>
+
+    <!-- Newline at end of file -->
+    <module name="NewlineAtEndOfFile"/>
+
+    <!-- No tabs -->
+    <module name="FileTabCharacter"/>
+
     <module name="TreeWalker">
-
-        <!-- Enforce class / interface naming -->
-        <module name="com.puppycrawl.tools.checkstyle.checks.naming.TypeNameCheck"/>
-
-        <!-- Catch empty if blocks -->
-        <module name="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck">
-            <property name="option" value="text"/>
-            <property name="tokens" value="LITERAL_IF"/>
+        <!-- Naming -->
+        <module name="TypeNameCheck">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
         </module>
 
-        <!-- Catch empty catch blocks -->
-        <module name="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyCatchBlockCheck"/>
+        <module name="MethodNameCheck">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="allowClassName" value="false"/>
+        </module>
+
+        <module name="LocalVariableNameCheck">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="allowOneCharVarInForLoop" value="true"/>
+        </module>
+
+        <module name="ParameterNameCheck">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="ignoreOverridden" value="true"/>
+        </module>
+
+        <!-- Blocks -->
+        <module name="EmptyBlockCheck">
+            <property name="option" value="TEXT"/>
+        </module>
+
+        <module name="EmptyCatchBlockCheck"/>
+        <module name="LeftCurly"/>
+        <module name="ParenPad"/>
+
+        <!-- Imports -->
+        <module name="UnusedImports"/>
+        <module name="AvoidStarImport"/>
+        <module name="RedundantImport"/>
+
+        <!-- Sizes -->
+        <module name="MethodLength">
+            <property name="max" value="150"/>
+        </module>
+
+        <module name="ParameterNumber">
+            <property name="max" value="7"/>
+        </module>
+
+        <!-- Modifiers -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <!-- Misc -->
+        <module name="EqualsHashCode"/>
+        <module name="OneStatementPerLine"/>
+        <module name="MultipleVariableDeclarations"/>
 
     </module>
 </module>

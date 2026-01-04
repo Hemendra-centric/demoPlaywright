@@ -1,0 +1,9 @@
+{
+  "HomepagePage": [
+    "color-contrast",
+    "label"
+  ],
+  "LoginPage": [
+    "button-name"
+  ]
+}
