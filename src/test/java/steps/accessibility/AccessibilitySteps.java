@@ -22,14 +22,6 @@ public class AccessibilitySteps {
     private static final Logger logger = LoggerFactory.getLogger(AccessibilitySteps.class);
     private String scanResult;
 
-    @Given("I open the login page")
-    public void openLoginPage() {
-        logger.info("Step: Opening login page for accessibility testing");
-        final Page page = ScenarioContext.getPage();
-        final LoginPage loginPage = new LoginPage(page);
-        loginPage.open();
-    }
-
     @Given("I am logged in and on the home page")
     public void loginAndGoToHomePage() {
         logger.info("Step: Logging in and navigating to home page");

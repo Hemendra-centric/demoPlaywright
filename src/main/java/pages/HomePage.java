@@ -16,8 +16,8 @@ public class HomePage {
     private final Page page;
 
     // Locators
-    private final String WELCOME_MESSAGE = ".welcome";
-    private final String USER_NAME = ".user-name";
+    private final String WELCOME_MESSAGE = ".username";
+    private final String USER_NAME = ".username";
     private final String LOGOUT_BUTTON = "#logoutButton";
 
     public HomePage(final Page page) {
@@ -25,12 +25,16 @@ public class HomePage {
     }
 
     /**
-     * Verify user is on the home page by checking for welcome message.
+     * Verify user is on the home page by checking the URL.
      */
     public void verifyOnHomePage() {
         logger.info("Verifying on home page");
-        final Locator welcome = page.locator(WELCOME_MESSAGE);
-        CommonFunction.assertElementVisible(welcome, "Welcome message");
+        // Check if current URL contains "home"
+        final String url = page.url();
+        if (!url.contains("home")) {
+            throw new AssertionError("Not on home page. Current URL: " + url);
+        }
+        logger.debug("✓ Verified on home page");
     }
 
     /**

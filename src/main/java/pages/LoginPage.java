@@ -32,7 +32,7 @@ public class LoginPage {
      */
     public void open() {
         logger.info("Opening login page");
-        page.navigate(ConfigReader.getBaseUrl() + "/login");
+        page.navigate(ConfigReader.getBaseUrl() + "/login.html");
         logger.debug("✓ Login page opened");
     }
 
