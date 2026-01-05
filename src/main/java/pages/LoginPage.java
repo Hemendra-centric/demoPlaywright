@@ -4,9 +4,8 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.AssertionHelper;
+import utils.CommonFunction;
 import utils.ConfigReader;
-import utils.WaitHelper;
 
 /**
  * Page Object for Login page.
@@ -45,8 +44,7 @@ public class LoginPage {
     public void enterEmail(final String email) {
         logger.debug("Entering email: {}", email);
         final Locator emailField = page.locator(EMAIL_INPUT);
-        WaitHelper.waitForElement(emailField, "Email input field");
-        emailField.fill(email);
+        CommonFunction.fill(emailField, email, "Email input field");
     }
 
     /**
@@ -57,8 +55,7 @@ public class LoginPage {
     public void enterPassword(final String password) {
         logger.debug("Entering password");
         final Locator passwordField = page.locator(PASSWORD_INPUT);
-        WaitHelper.waitForElement(passwordField, "Password input field");
-        passwordField.fill(password);
+        CommonFunction.fill(passwordField, password, "Password input field");
     }
 
     /**
@@ -67,8 +64,7 @@ public class LoginPage {
     public void clickLoginButton() {
         logger.info("Clicking login button");
         final Locator button = page.locator(LOGIN_BUTTON);
-        WaitHelper.waitForElement(button, "Login button");
-        button.click();
+        CommonFunction.click(button, "Login button");
     }
 
     /**
@@ -92,8 +88,8 @@ public class LoginPage {
     public void verifyErrorMessage(final String expectedMessage) {
         logger.info("Verifying error message: {}", expectedMessage);
         final Locator errorMsg = page.locator(ERROR_MESSAGE);
-        AssertionHelper.assertElementVisible(errorMsg, "Error message", "LoginPage");
-        AssertionHelper.assertElementText(errorMsg, expectedMessage, "LoginPage");
+        CommonFunction.assertElementVisible(errorMsg, "Error message");
+        CommonFunction.assertElementText(errorMsg, expectedMessage);
     }
 
     /**
@@ -102,7 +98,7 @@ public class LoginPage {
     public void verifySuccessMessage() {
         logger.info("Verifying success message");
         final Locator successMsg = page.locator(SUCCESS_MESSAGE);
-        AssertionHelper.assertElementVisible(successMsg, "Success message", "LoginPage");
+        CommonFunction.assertElementVisible(successMsg, "Success message");
     }
 
     /**

@@ -4,8 +4,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.AssertionHelper;
-import utils.WaitHelper;
+import utils.CommonFunction;
 
 /**
  * Page Object for Home page.
@@ -31,7 +30,7 @@ public class HomePage {
     public void verifyOnHomePage() {
         logger.info("Verifying on home page");
         final Locator welcome = page.locator(WELCOME_MESSAGE);
-        AssertionHelper.assertElementVisible(welcome, "Welcome message", "HomePage");
+        CommonFunction.assertElementVisible(welcome, "Welcome message");
     }
 
     /**
@@ -42,8 +41,8 @@ public class HomePage {
     public String getUserName() {
         logger.debug("Getting user name from home page");
         final Locator userNameElement = page.locator(USER_NAME);
-        WaitHelper.waitForElement(userNameElement, "User name element");
-        return userNameElement.textContent();
+        CommonFunction.waitForElement(userNameElement, "User name element");
+        return CommonFunction.getText(userNameElement);
     }
 
     /**
@@ -52,8 +51,7 @@ public class HomePage {
     public void logout() {
         logger.info("Clicking logout button");
         final Locator logoutBtn = page.locator(LOGOUT_BUTTON);
-        WaitHelper.waitForElement(logoutBtn, "Logout button");
-        logoutBtn.click();
+        CommonFunction.click(logoutBtn, "Logout button");
     }
 
     /**
@@ -63,6 +61,6 @@ public class HomePage {
      */
     public void verifyPageUrl(final String expectedPath) {
         logger.info("Verifying page URL contains: {}", expectedPath);
-        AssertionHelper.assertPageUrl(page, expectedPath, "HomePage");
+        CommonFunction.assertPageUrl(page, expectedPath);
     }
 }
