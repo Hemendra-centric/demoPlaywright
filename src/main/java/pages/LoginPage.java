@@ -65,6 +65,13 @@ public class LoginPage {
         logger.info("Clicking login button");
         final Locator button = page.locator(LOGIN_BUTTON);
         CommonFunction.click(button, "Login button");
+
+        // Allow time for form validation and response
+        try {
+            Thread.sleep(500);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -88,6 +95,15 @@ public class LoginPage {
     public void verifyErrorMessage(final String expectedMessage) {
         logger.info("Verifying error message: {}", expectedMessage);
         final Locator errorMsg = page.locator(ERROR_MESSAGE);
+
+        // Wait for error message to be visible (with timeout)
+        try {
+            errorMsg.waitFor(new Locator.WaitForOptions().setTimeout(5000));
+            logger.debug("✓ Error message became visible");
+        } catch (final Exception e) {
+            logger.warn("Error message not visible within timeout, attempting assertion anyway", e);
+        }
+
         CommonFunction.assertElementVisible(errorMsg, "Error message");
         CommonFunction.assertElementText(errorMsg, expectedMessage);
     }
@@ -98,6 +114,15 @@ public class LoginPage {
     public void verifySuccessMessage() {
         logger.info("Verifying success message");
         final Locator successMsg = page.locator(SUCCESS_MESSAGE);
+
+        // Wait for success message to be visible
+        try {
+            successMsg.waitFor(new Locator.WaitForOptions().setTimeout(5000));
+            logger.debug("✓ Success message became visible");
+        } catch (final Exception e) {
+            logger.warn("Success message not visible within timeout, attempting assertion anyway", e);
+        }
+
         CommonFunction.assertElementVisible(successMsg, "Success message");
     }
 

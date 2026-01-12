@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import core.BrowserManager;
 import utils.ArtifactManager;
 import utils.ConfigReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Cucumber hooks for browser lifecycle management.
@@ -48,14 +50,20 @@ public class BrowserHooks {
         final Page page = ScenarioContext.getPage();
         final BrowserContext context = ScenarioContext.getContext();
 
-        // Capture screenshot on failure
+        // Capture screenshot on failure and embed in report
         if (scenario.isFailed() && page != null) {
             try {
                 final String screenshotPath = ArtifactManager.takeScreenshot(page, scenario.getName() + "_FAILED",
                         true);
-                logger.info("✓ Screenshot captured on failure: {}", screenshotPath);
+
+                if (screenshotPath != null) {
+                    // Embed screenshot in Cucumber report
+                    final byte[] screenshotData = Files.readAllBytes(Paths.get(screenshotPath));
+                    scenario.attach(screenshotData, "image/png", "Failed Screenshot - " + scenario.getName());
+                    logger.info("✓ Screenshot captured and embedded in report: {}", screenshotPath);
+                }
             } catch (final Exception e) {
-                logger.warn("Failed to capture screenshot for scenario: {}", scenario.getName(), e);
+                logger.warn("Failed to capture and embed screenshot for scenario: {}", scenario.getName(), e);
             }
         }
 

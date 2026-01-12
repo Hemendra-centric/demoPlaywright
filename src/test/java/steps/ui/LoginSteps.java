@@ -51,6 +51,20 @@ public class LoginSteps {
         loginPage.clickLoginButton();
     }
 
+    @Then("I should see success message")
+    public void verifySuccessMessage() {
+        logger.info("Step: Verifying success message");
+        final Page page = ScenarioContext.getPage();
+        homePage = new HomePage(page);
+
+        if (loginPage == null) {
+            loginPage = new LoginPage(page);
+        }
+        loginPage.verifySuccessMessage();
+
+        logger.info("✓ User successfully logged in");
+    }
+
     @Then("I should be redirected to the home page")
     public void verifyRedirectedToHome() {
         logger.info("Step: Verifying redirection to home page");

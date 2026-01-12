@@ -26,6 +26,7 @@ public class APIAuthSteps {
     public void prepareAuthRequest() {
         logger.info("Step: Preparing authentication API request");
         requestBody = new JsonObject();
+        ScenarioContext.setApiRequest(requestBody);
         logger.debug("✓ Authentication request prepared");
     }
 
@@ -35,6 +36,7 @@ public class APIAuthSteps {
 
         requestBody.addProperty("email", "user@example.com");
         requestBody.addProperty("password", "SecurePassword123");
+        ScenarioContext.setApiRequest(requestBody);
 
         // In a real scenario, this would make an HTTP request via RestAssured or
         // similar
@@ -46,6 +48,9 @@ public class APIAuthSteps {
         responseBody.addProperty("userId", 1);
         responseBody.addProperty("email", "user@example.com");
 
+        ScenarioContext.setApiResponse(responseBody);
+        ScenarioContext.setApiResponseStatus(responseStatus);
+
         logger.info("✓ Mock response received with status: {}", responseStatus);
     }
 
@@ -55,12 +60,16 @@ public class APIAuthSteps {
 
         requestBody.addProperty("email", "invalid@example.com");
         requestBody.addProperty("password", "wrongpassword");
+        ScenarioContext.setApiRequest(requestBody);
 
         // Mock response for invalid credentials
         responseStatus = 401;
         responseBody = new JsonObject();
         responseBody.addProperty("error", "INVALID_CREDENTIALS");
         responseBody.addProperty("message", "Invalid credentials");
+
+        ScenarioContext.setApiResponse(responseBody);
+        ScenarioContext.setApiResponseStatus(responseStatus);
 
         logger.info("✓ Mock response received with status: {}", responseStatus);
     }
@@ -71,12 +80,16 @@ public class APIAuthSteps {
 
         // Intentionally omit email
         requestBody.addProperty("password", "somepassword");
+        ScenarioContext.setApiRequest(requestBody);
 
         // Mock response for missing email
         responseStatus = 400;
         responseBody = new JsonObject();
         responseBody.addProperty("error", "VALIDATION_ERROR");
         responseBody.addProperty("message", "Email is required");
+
+        ScenarioContext.setApiResponse(responseBody);
+        ScenarioContext.setApiResponseStatus(responseStatus);
 
         logger.info("✓ Mock response received with status: {}", responseStatus);
     }

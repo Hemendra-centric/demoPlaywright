@@ -34,10 +34,24 @@ public class AccessibilitySteps {
         homePage.verifyOnHomePage();
     }
 
+    @Given("I open page {string}")
+    public void openPage(final String url) {
+        logger.info("Step: Opening page {}", url);
+        final Page page = ScenarioContext.getPage();
+        page.navigate(url);
+    }
+
     @When("I run an accessibility scan")
     public void runAccessibilityScan() {
         logger.info("Step: Running accessibility scan");
         final Page page = ScenarioContext.getPage();
+        // If a target URL is specified in config, navigate there first
+        final String targetUrl = ConfigReader.get("a11y.target.url", ConfigReader.getBaseUrl());
+        if (targetUrl != null && !targetUrl.isBlank()) {
+            logger.info("Navigating to configured target URL: {}", targetUrl);
+            page.navigate(targetUrl);
+        }
+
         AccessibilityUtil.scan(page, "CurrentPage");
         scanResult = "SCAN_COMPLETED";
     }
