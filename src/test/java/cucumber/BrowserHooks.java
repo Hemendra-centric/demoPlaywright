@@ -43,7 +43,7 @@ public class BrowserHooks {
         logger.debug("✓ Browser context initialized for scenario: {}", scenario.getName());
     }
 
-    @After
+    @After(order = 1) // Run first (before APIHooks which is order 10)
     public void afterScenario(final io.cucumber.java.Scenario scenario) {
         logger.info("Finishing scenario: {} (status: {})", scenario.getName(), scenario.getStatus());
 
@@ -72,6 +72,8 @@ public class BrowserHooks {
             logger.debug("✓ Browser context closed");
         }
 
-        ScenarioContext.cleanup();
+        // Don't cleanup here - let the cleanup hook do it
+        // This allows APIHooks to access the data before cleanup
+        logger.debug("✓ @After(order=1) BrowserHooks completed");
     }
 }
