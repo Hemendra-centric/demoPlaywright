@@ -2,87 +2,33 @@ name: API Tests
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, Hemendra]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main]
 
 jobs:
-  api-testing:
-    name: API Testing
+  api-tests:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        java-version: ['17']
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Display Git Log
-        run: |
-          echo "========== Checking out source code =========="
-          git log --oneline -5
-
-      - name: Set up JDK ${{ matrix.java-version }}
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java-version }}
-          distribution: 'temurin'
+          java-version: '17'
+          distribution: temurin
           cache: maven
-
-      - name: Build Project
-        run: |
-          echo "========== Building the project =========="
-          mvn clean compile -DskipTests -q
-          echo "✓ Project built successfully"
 
       - name: Run API Tests
         run: |
-          echo "========== Running API Tests =========="
-          mvn clean test -Dgroups="api" -q || true
-          echo "✓ API tests completed"
+          mvn clean test -Dgroups=api || true
 
-      - name: Generate Test Reports
-        if: always()
-        run: |
-          echo "========== Generating test reports =========="
-          mvn verify -DskipTests -q
-          echo "✓ Reports generated"
-
-      - name: Publish Cucumber Report
+      - name: Publish Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: api-cucumber-report
-          path: target/cucumber-reports/
-          retention-days: 30
-
-      - name: Publish Test Artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-test-artifacts
-          path: target/test-artifacts/
-          retention-days: 30
-
-      - name: Generate JaCoCo Code Coverage
-        if: always()
-        run: |
-          echo "========== Collecting code coverage =========="
-          mvn jacoco:report -q || true
-          echo "✓ JaCoCo report generated"
-
-      - name: Upload Coverage Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-jacoco-report
-          path: target/site/jacoco/
-          retention-days: 30
+          name: api-test-reports
+          path: |
+            target/cucumber-reports/
+            target/test-artifacts/

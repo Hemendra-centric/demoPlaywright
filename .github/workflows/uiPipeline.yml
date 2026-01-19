@@ -2,111 +2,38 @@ name: UI Tests
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, Hemendra]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main]
 
 jobs:
-  ui-testing:
-    name: UI Testing
+  ui-tests:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        java-version: ['17']
-        browser: [chromium, firefox, webkit]
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Display Git Log
-        run: |
-          echo "========== Checking out source code =========="
-          git log --oneline -5
-
-      - name: Set up JDK ${{ matrix.java-version }}
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java-version }}
-          distribution: 'temurin'
+          java-version: '17'
+          distribution: temurin
           cache: maven
 
-      - name: Install Playwright Dependencies
+      - name: Install Playwright deps
         run: |
-          echo "========== Installing Playwright browsers =========="
           sudo apt-get update
           sudo apt-get install -y libgconf-2-4
-          echo "✓ Dependencies installed"
 
-      - name: Build Project
+      - name: Build & Run UI tests
         run: |
-          echo "========== Building the project =========="
-          mvn clean compile -DskipTests -q
-          echo "✓ Project built successfully"
+          mvn clean test -Dgroups=ui -Dbrowser=chromium || true
 
-      - name: Run UI Tests - ${{ matrix.browser }}
-        run: |
-          echo "========== Running UI Tests on ${{ matrix.browser }} =========="
-          mvn clean test -Dgroups="ui" -Dbrowser=${{ matrix.browser }} -q || true
-          echo "✓ UI tests completed on ${{ matrix.browser }}"
-
-      - name: Generate Test Reports
-        if: always()
-        run: |
-          echo "========== Generating test reports =========="
-          mvn verify -DskipTests -q
-          echo "✓ Reports generated"
-
-      - name: Publish Cucumber Report - ${{ matrix.browser }}
+      - name: Publish Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ui-cucumber-report-${{ matrix.browser }}
-          path: target/cucumber-reports/
-          retention-days: 30
-
-      - name: Publish UI Test Artifacts - ${{ matrix.browser }}
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-test-artifacts-${{ matrix.browser }}
-          path: target/test-artifacts/
-          retention-days: 30
-
-      - name: Upload Videos - ${{ matrix.browser }}
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-videos-${{ matrix.browser }}
-          path: target/test-artifacts/videos/
-          retention-days: 30
-
-      - name: Upload Screenshots - ${{ matrix.browser }}
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-screenshots-${{ matrix.browser }}
-          path: target/test-artifacts/screenshots/
-          retention-days: 30
-
-      - name: Generate JaCoCo Code Coverage
-        if: always()
-        run: |
-          echo "========== Collecting code coverage =========="
-          mvn jacoco:report -q || true
-          echo "✓ JaCoCo report generated"
-
-      - name: Upload Coverage Report - ${{ matrix.browser }}
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-jacoco-report-${{ matrix.browser }}
-          path: target/site/jacoco/
-          retention-days: 30
+          name: ui-test-reports
+          path: |
+            target/cucumber-reports/
+            target/test-artifacts/
