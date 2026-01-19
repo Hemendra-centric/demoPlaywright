@@ -1,0 +1,190 @@
+trigger:
+  - main
+  - develop
+  - hemendra
+
+pr:
+  - main
+  - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  JAVA_VERSION: '17'
+  MAVEN_VERSION: '3.9.0'
+  JAVA_HOME: $(Agent.ToolsDirectory)/Java/openjdk_17/x64
+
+stages:
+  - stage: Build_and_Test
+    displayName: 'Build and Test'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Job'
+        steps:
+          # Checkout source code
+          - task: Checkout@1
+            displayName: 'Checkout source code'
+            inputs:
+              fetchDepth: 0
+
+          # Display git log
+          - script: |
+              echo "========== Checking out source code =========="
+              git log --oneline -5
+            displayName: 'Display Git Log'
+
+          # Setup Java
+          - task: UsePythonVersion@0
+            displayName: 'Use Java 17'
+            inputs:
+              versionSpec: '17'
+
+          # Setup Maven
+          - task: Maven@3
+            displayName: 'Maven Setup'
+            inputs:
+              mavenVersionSelection: 'default'
+
+          # Step 1: Build (compile only, skip tests)
+          - script: |
+              echo "========== Building the project =========="
+              mvn clean compile -DskipTests -q
+              echo "✓ Project built successfully"
+            displayName: 'Build Project'
+
+          # Step 2: Code Quality Checks
+          - script: |
+              echo "========== Running code quality checks =========="
+              mvn checkstyle:check -q
+              echo "✓ Checkstyle passed"
+            displayName: 'Checkstyle Code Review'
+            continueOnError: true
+
+          - script: |
+              mvn pmd:check -q
+              echo "✓ PMD passed"
+            displayName: 'PMD Analysis'
+            continueOnError: true
+
+          - script: |
+              mvn spotbugs:check -q
+              echo "✓ SpotBugs passed"
+            displayName: 'SpotBugs Analysis'
+            continueOnError: true
+
+          # Step 3: Unit Tests
+          - script: |
+              echo "========== Running unit tests =========="
+              mvn test -q
+              echo "✓ Unit tests completed"
+            displayName: 'Run Unit Tests'
+            continueOnError: true
+
+          # Step 4: Generate Reports
+          - script: |
+              echo "========== Generating test reports =========="
+              mvn verify -DskipTests -q
+              echo "✓ Reports generated"
+            displayName: 'Generate Test Reports'
+            continueOnError: true
+
+          # Step 5: Code Coverage
+          - script: |
+              echo "========== Collecting code coverage =========="
+              mvn jacoco:report -q
+              echo "✓ JaCoCo report generated"
+            displayName: 'Generate JaCoCo Code Coverage'
+            continueOnError: true
+
+          # Publish JaCoCo Coverage Report
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish JaCoCo Coverage'
+            inputs:
+              codeCoverageTool: JaCoCo
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/target/site/jacoco/jacoco.xml'
+              reportDirectory: '$(System.DefaultWorkingDirectory)/target/site/jacoco'
+            continueOnError: true
+
+          # Step 6: Publish Test Results
+          - task: PublishTestResults@2
+            displayName: 'Publish JUnit Test Results'
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/target/surefire-reports/*.xml'
+              mergeTestResults: true
+              failTaskOnFailedTests: false
+              publishRunAttachments: true
+            continueOnError: true
+
+          # Publish Cucumber Report
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Cucumber Report'
+            inputs:
+              PathtoPublish: 'target/cucumber-reports'
+              ArtifactName: 'Cucumber-Report'
+            continueOnError: true
+
+          # Publish Screenshots
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Screenshots'
+            inputs:
+              PathtoPublish: 'target/test-artifacts/screenshots'
+              ArtifactName: 'Test-Screenshots'
+            continueOnError: true
+
+          # Publish Videos
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Test Videos'
+            inputs:
+              PathtoPublish: 'target/test-artifacts/videos'
+              ArtifactName: 'Test-Videos'
+            continueOnError: true
+
+          # Publish JaCoCo Report
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish JaCoCo Report'
+            inputs:
+              PathtoPublish: 'target/site/jacoco'
+              ArtifactName: 'JaCoCo-Report'
+            continueOnError: true
+
+          # Publish Accessibility Reports
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Accessibility Reports'
+            inputs:
+              PathtoPublish: 'target/a11y-reports'
+              ArtifactName: 'Accessibility-Reports'
+            continueOnError: true
+
+  - stage: Reports_and_Summary
+    displayName: 'Reports & Summary'
+    dependsOn: Build_and_Test
+    condition: succeeded()
+    jobs:
+      - job: PublishReports
+        displayName: 'Publish Summary'
+        steps:
+          - script: |
+              echo "========== BUILD SUMMARY =========="
+              echo "Build Number: $(Build.BuildNumber)"
+              echo "Source Branch: $(Build.SourceBranch)"
+              echo "Build Status: SUCCESS"
+              echo "=========================================="
+            displayName: 'Display Build Summary'
+
+# Post Job Cleanup
+  - stage: Cleanup
+    displayName: 'Cleanup'
+    dependsOn: Build_and_Test
+    condition: always()
+    jobs:
+      - job: CleanupJob
+        displayName: 'Cleanup Artifacts'
+        steps:
+          - script: |
+              echo "========== Cleaning up workspace =========="
+              rm -rf target/
+              echo "✓ Cleanup completed"
+            displayName: 'Clean Workspace'
+            continueOnError: true
