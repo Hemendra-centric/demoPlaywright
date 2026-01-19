@@ -2,7 +2,7 @@ name: Accessibility Tests
 
 on:
   push:
-    branches: [main, Hemendra]
+    branches: [main, hemendra]
   pull_request:
     branches: [main]
 
