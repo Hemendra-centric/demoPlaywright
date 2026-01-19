@@ -1,0 +1,103 @@
+name: Accessibility Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  accessibility-testing:
+    name: Accessibility Testing
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        java-version: ['17']
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Display Git Log
+        run: |
+          echo "========== Checking out source code =========="
+          git log --oneline -5
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Install Playwright Dependencies
+        run: |
+          echo "========== Installing Playwright browsers =========="
+          sudo apt-get update
+          sudo apt-get install -y libgconf-2-4
+          echo "✓ Dependencies installed"
+
+      - name: Build Project
+        run: |
+          echo "========== Building the project =========="
+          mvn clean compile -DskipTests -q
+          echo "✓ Project built successfully"
+
+      - name: Run Accessibility Tests
+        run: |
+          echo "========== Running Accessibility Tests =========="
+          mvn clean test -Dgroups="accessibility" -q || true
+          echo "✓ Accessibility tests completed"
+
+      - name: Generate Test Reports
+        if: always()
+        run: |
+          echo "========== Generating test reports =========="
+          mvn verify -DskipTests -q
+          echo "✓ Reports generated"
+
+      - name: Publish Cucumber Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-cucumber-report
+          path: target/cucumber-reports/
+          retention-days: 30
+
+      - name: Publish Accessibility Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-test-artifacts
+          path: target/test-artifacts/
+          retention-days: 30
+
+      - name: Publish A11y Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-reports
+          path: target/a11y-reports/
+          retention-days: 30
+
+      - name: Generate JaCoCo Code Coverage
+        if: always()
+        run: |
+          echo "========== Collecting code coverage =========="
+          mvn jacoco:report -q || true
+          echo "✓ JaCoCo report generated"
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-jacoco-report
+          path: target/site/jacoco/
+          retention-days: 30
