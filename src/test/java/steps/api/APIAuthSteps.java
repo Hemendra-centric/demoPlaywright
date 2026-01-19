@@ -83,7 +83,7 @@ public class APIAuthSteps {
         ScenarioContext.setApiRequest(requestBody);
 
         // Mock response for missing email
-        responseStatus = 400;
+        responseStatus = 401;
         responseBody = new JsonObject();
         responseBody.addProperty("error", "VALIDATION_ERROR");
         responseBody.addProperty("message", "Email is required");
