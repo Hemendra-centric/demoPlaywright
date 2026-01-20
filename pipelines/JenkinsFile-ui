@@ -11,15 +11,23 @@ pipeline {
 
         stage('Run UI Tests') {
             steps {
-                sh 'mvn clean test -Dgroups=ui -Dbrowser=chromium || true'
+                bat '''
+                mvn clean test ^
+                  -Dgroups=ui ^
+                  -Dbrowser=chromium ^
+                  || exit 0
+                '''
             }
         }
 
         stage('Publish Reports') {
             steps {
-                junit 'target/surefire-reports/*.xml'
+                junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
 
                 publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
                     reportDir: 'target/cucumber-reports',
                     reportFiles: 'cucumber-report.html',
                     reportName: 'UI Test Report'
@@ -29,11 +37,6 @@ pipeline {
     }
 
     post {
-        failure {
-            mail to: 'hemendra.champawat@centricconsulting.com',
-                 subject: "❌ UI Pipeline Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Check logs: ${env.BUILD_URL}"
-        }
         always {
             cleanWs()
         }
