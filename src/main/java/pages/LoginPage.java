@@ -19,7 +19,7 @@ public class LoginPage {
     // Locators
     private final String EMAIL_INPUT = "#email";
     private final String PASSWORD_INPUT = "#password";
-    private final String LOGIN_BUTTON = ""; // "#loginButton"
+    private final String LOGIN_BUTTON = "#loginButton";
     private final String ERROR_MESSAGE = ".error-message";
     private final String SUCCESS_MESSAGE = ".success-message";
 
