@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'java-17'
-        maven 'maven'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -14,36 +9,32 @@ pipeline {
             }
         }
 
-        stage('Install Playwright Browsers') {
-            steps {
-                sh '''
-                  mvn exec:java \
-                  -Dexec.mainClass=com.microsoft.playwright.CLI \
-                  -Dexec.args="install"
-                '''
-            }
-        }
-
         stage('Run UI Tests') {
             steps {
                 sh 'mvn clean test -Dgroups=ui -Dbrowser=chromium || true'
             }
         }
+
+        stage('Publish Reports') {
+            steps {
+                junit 'target/surefire-reports/*.xml'
+
+                publishHTML([
+                    reportDir: 'target/cucumber-reports',
+                    reportFiles: 'cucumber-report.html',
+                    reportName: 'UI Test Report'
+                ])
+            }
+        }
     }
 
     post {
+        failure {
+            mail to: 'hemendra.champawat@centricconsulting.com',
+                 subject: "❌ UI Pipeline Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Check logs: ${env.BUILD_URL}"
+        }
         always {
-            junit 'target/surefire-reports/*.xml'
-
-            publishHTML([
-                reportDir: 'target/cucumber-reports',
-                reportFiles: 'cucumber-report.html',
-                reportName: 'UI Test Report',
-                keepAll: true,
-                alwaysLinkToLastBuild: true
-            ])
-
-            archiveArtifacts artifacts: 'target/test-artifacts/**', allowEmptyArchive: true
             cleanWs()
         }
     }
