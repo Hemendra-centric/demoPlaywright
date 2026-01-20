@@ -1,0 +1,88 @@
+pipeline {
+    agent any
+
+    environment {
+        // Windows paths - adjust to your Jenkins configuration
+        JAVA_HOME = 'C:\\Program Files\\Java\\jdk-17'
+        PATH = "${JAVA_HOME}\\bin;${env.PATH}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '========== Checking out source code =========='
+                checkout scm
+                bat 'git log --oneline -5'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo '========== Building the project =========='
+                bat 'mvn clean compile -DskipTests -q'
+            }
+        }
+
+        stage('Run Accessibility Tests') {
+            steps {
+                echo '========== Running Accessibility Tests =========='
+                bat '''
+                mvn clean test ^
+                  -Dgroups=accessibility ^
+                  -Dbrowser=chromium ^
+                  -Dheadless=false
+                '''
+            }
+        }
+
+        stage('Publish Reports') {
+            steps {
+                echo '========== Publishing Test Reports =========='
+                junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'target/cucumber-reports',
+                    reportFiles: 'cucumber-report.html',
+                    reportName: 'Accessibility Test Report'
+                ])
+
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'target/a11y-reports',
+                    reportFiles: 'index.html',
+                    reportName: 'Accessibility Violations Report'
+                ])
+
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'target/test-artifacts/screenshots',
+                    reportFiles: 'index.html',
+                    reportName: 'Test Screenshots'
+                ])
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '========== Archiving Artifacts =========='
+            archiveArtifacts artifacts: 'target/a11y-reports/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'target/test-artifacts/**', allowEmptyArchive: true
+        }
+
+        success {
+            echo '✓ Accessibility Tests Passed!'
+        }
+
+        failure {
+            echo '✗ Accessibility Tests Failed - Check Accessibility Violations Report'
+        }
+    }
+}
