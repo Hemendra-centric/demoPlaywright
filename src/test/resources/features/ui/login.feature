@@ -19,7 +19,7 @@ Feature: User Login
     And I click the login button
     Then I should see error message "Invalid email or password"
 
-  @ui @login @validation @wip
+  @ui @login @validation
   Scenario: User sees validation error with empty email
     Given I open the login page
     When I enter password "somepassword"
