@@ -1,27 +1,43 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        // Windows paths - adjust to your Jenkins configuration
+        JAVA_HOME = 'C:\\Program Files\\Java\\jdk-17'
+        PATH = "${JAVA_HOME}\\bin;${env.PATH}"
+    }
 
+    stages {
         stage('Checkout') {
             steps {
+                echo '========== Checking out source code =========='
                 checkout scm
+                bat 'git log --oneline -5'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo '========== Building the project =========='
+                bat 'mvn clean compile -DskipTests -q'
             }
         }
 
         stage('Run UI Tests') {
             steps {
+                echo '========== Running UI Tests =========='
                 bat '''
-                mvn clean test ^
+                mvn test ^
                   -Dgroups=ui ^
                   -Dbrowser=chromium ^
-                  || exit 0
+                  -Dheadless=false
                 '''
             }
         }
 
         stage('Publish Reports') {
             steps {
+                echo '========== Publishing Test Reports =========='
                 junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
 
                 publishHTML([
@@ -32,13 +48,32 @@ pipeline {
                     reportFiles: 'cucumber-report.html',
                     reportName: 'UI Test Report'
                 ])
+
+                // Also publish screenshots/videos if available
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'target/test-artifacts/screenshots',
+                    reportFiles: 'index.html',
+                    reportName: 'Test Screenshots'
+                ])
             }
         }
     }
 
     post {
         always {
+            echo '========== Cleaning up =========='
             cleanWs()
+        }
+
+        success {
+            echo '✓ UI Tests Passed!'
+        }
+
+        failure {
+            echo '✗ UI Tests Failed - Check reports above'
         }
     }
 }
