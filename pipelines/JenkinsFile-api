@@ -23,39 +23,30 @@ pipeline {
             }
         }
 
-        stage('Run UI Tests') {
+        stage('Run API Tests') {
             steps {
-                echo '========== Running UI Tests =========='
+                echo '========== Running API Tests =========='
                 bat '''
                 mvn clean test ^
-                  -Dgroups=ui ^
-                  -Dbrowser=chromium ^
-                  -Dheadless=false
+                  -Dgroups=api
                 '''
             }
         }
 
         stage('Publish Reports') {
             steps {
-                echo '========== Publishing Test Reports =========='
+                echo '========== Publishing API Test Reports =========='
+                // Publish XML results
                 junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
 
+                // Publish Cucumber HTML reports
                 publishHTML([
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
                     reportDir: 'target/cucumber-reports',
                     reportFiles: 'cucumber-report.html',
-                    reportName: 'UI Test Report'
-                ])
-
-                publishHTML([
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'target/test-artifacts/screenshots',
-                    reportFiles: 'index.html',
-                    reportName: 'Test Screenshots'
+                    reportName: 'API Test Report'
                 ])
             }
         }
@@ -65,15 +56,14 @@ pipeline {
         always {
             echo '========== Archiving Artifacts =========='
             archiveArtifacts artifacts: 'target/test-artifacts/**', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'target/a11y-reports/**', allowEmptyArchive: true
         }
 
         success {
-            echo '✓ UI Tests Passed!'
+            echo '✓ API Tests Passed!'
         }
 
         failure {
-            echo '✗ UI Tests Failed - Check reports above'
+            echo '✗ API Tests Failed - Check reports above'
         }
     }
 }
