@@ -1,0 +1,35 @@
+{
+  "requirementId": "REQ-123",
+  "ui": {
+    "featureName": "User Login",
+    "scenarios": [
+      {
+        "name": "Valid login",
+        "risk": "HIGH",
+        "steps": [
+          "User is on login page",
+          "User enters valid credentials",
+          "User clicks login",
+          "User is redirected to dashboard"
+        ]
+      }
+    ]
+  },
+  "api": {
+    "featureName": "Authentication API",
+    "scenarios": [
+      {
+        "name": "Valid credentials",
+        "risk": "HIGH",
+        "request": {
+          "username": "string",
+          "password": "string"
+        },
+        "expectedResponse": {
+          "statusCode": 200,
+          "bodyContains": ["token", "expiry"]
+        }
+      }
+    ]
+  }
+}

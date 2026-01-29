@@ -1,89 +1,81 @@
 {
-  "requirement_id": "REQ-123",
-  "requirement_summary": "User should be able to login using valid credentials",
+  "requirementId": "REQ-123",
+  "summary": "User login using username and password",
 
-  "ambiguities": [
-    {
-      "type": "BUSINESS_RULE",
-      "question": "What happens after 3 consecutive failed login attempts?",
-      "severity": "HIGH"
-    },
-    {
-      "type": "VALIDATION",
-      "question": "Are special characters allowed in the password?",
-      "severity": "MEDIUM"
-    }
-  ],
+  "ui": {
+    "featureName": "User Login",
+    "feature": "Feature: User Login\n  As a user I want to log in so that I can access the application",
 
-  "risk_classification": {
-    "happy": ["Successful login with valid credentials"],
-    "negative": [
-      "Login with invalid password",
-      "Login with non-existent user"
-    ],
-    "edge": [
-      "Password at maximum allowed length",
-      "Username with special characters"
-    ],
-    "boundary": [
-      "Password length exactly at minimum limit",
-      "Password length exactly at maximum limit"
+    "scenarios": [
+      {
+        "name": "Valid login",
+        "risk": "HIGH",
+        "type": "HAPPY_PATH",
+        "steps": [
+          "Given user is on the login page",
+          "When user enters valid username and password",
+          "And user clicks on login button",
+          "Then user should be redirected to dashboard"
+        ]
+      },
+      {
+        "name": "Invalid password",
+        "risk": "MEDIUM",
+        "type": "NEGATIVE",
+        "steps": [
+          "Given user is on the login page",
+          "When user enters valid username and invalid password",
+          "Then error message should be displayed"
+        ]
+      }
     ]
   },
 
-  "ui_features": [
-    {
-      "feature_name": "ui_login.feature",
-      "tags": ["@REQ-123", "@UI", "@LOGIN"],
-      "scenarios": [
-        {
-          "scenario_name": "Successful login with valid credentials",
-          "risk_type": "happy",
-          "steps": [
-            "Given user is on the login page",
-            "When user enters valid username and password",
-            "And user clicks on login button",
-            "Then user should be redirected to dashboard"
-          ]
+  "api": {
+    "featureName": "Authentication API",
+    "endpoint": "/api/auth/login",
+    "method": "POST",
+
+    "scenarios": [
+      {
+        "name": "Valid credentials",
+        "risk": "HIGH",
+        "request": {
+          "username": "string",
+          "password": "string"
+        },
+        "expectedResponse": {
+          "statusCode": 200,
+          "bodyContains": ["token", "expiry"]
         }
-      ]
-    }
+      },
+      {
+        "name": "Invalid credentials",
+        "risk": "HIGH",
+        "request": {
+          "username": "string",
+          "password": "wrong"
+        },
+        "expectedResponse": {
+          "statusCode": 401,
+          "errorMessage": "Invalid credentials"
+        }
+      }
+    ]
+  },
+
+  "ambiguities": [
+    "Password policy is not specified",
+    "Error message text is not defined"
   ],
 
-  "api_features": [
-    {
-      "feature_name": "api_authentication.feature",
-      "tags": ["@REQ-123", "@API", "@AUTH"],
-      "endpoint": "/api/auth/login",
-      "method": "POST",
-      "request_parameters": [
-        "username",
-        "password"
-      ],
-      "expected_responses": [
-        {
-          "status_code": 200,
-          "description": "Authentication successful",
-          "risk_type": "happy"
-        },
-        {
-          "status_code": 401,
-          "description": "Invalid credentials",
-          "risk_type": "negative"
-        },
-        {
-          "status_code": 400,
-          "description": "Missing or invalid request parameters",
-          "risk_type": "boundary"
-        }
-      ]
-    }
+  "assumptions": [
+    "User account already exists",
+    "Login page is publicly accessible"
   ],
 
-  "traceability_map": {
-    "REQ-123": {
-      "ui": ["ui_login.feature"],
-      "api": ["api_authentication.feature"]
-    }
-  }
+  "outOfScope": [
+    "Social login",
+    "Multi-factor authentication"
+  ]
 }

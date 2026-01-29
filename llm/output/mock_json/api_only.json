@@ -1,0 +1,21 @@
+{
+  "requirementId": "REQ-126",
+  "ui": null,
+  "api": {
+    "featureName": "Password Reset API",
+    "scenarios": [
+      {
+        "name": "Reset password with token",
+        "risk": "HIGH",
+        "request": {
+          "token": "string",
+          "newPassword": "string"
+        },
+        "expectedResponse": {
+          "statusCode": 200,
+          "message": "Password reset successful"
+        }
+      }
+    ]
+  }
+}

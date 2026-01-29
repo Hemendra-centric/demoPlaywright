@@ -1,0 +1,20 @@
+{
+  "requirementId": "REQ-201",
+  "ui": {
+    "featureName": "Change Password Screen",
+    "scenarios": [
+      {
+        "name": "Change password successfully",
+        "risk": "MEDIUM",
+        "steps": [
+          "User navigates to change password screen",
+          "User enters old password",
+          "User enters new password",
+          "User submits the form",
+          "Success message is displayed"
+        ]
+      }
+    ]
+  },
+  "api": null
+}

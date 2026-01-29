@@ -1,0 +1,28 @@
+{
+  "requirementId": "REQ-127",
+  "ui": {
+    "featureName": "Profile Update",
+    "scenarios": [
+      {
+        "name": "Update profile",
+        "risk": "LOW",
+        "steps": []
+      }
+    ]
+  },
+  "api": {
+    "featureName": "Profile API",
+    "scenarios": [
+      {
+        "name": "Update profile",
+        "risk": "LOW",
+        "request": {
+          "email": "string"
+        },
+        "expectedResponse": {
+          "statusCode": 200
+        }
+      }
+    ]
+  }
+}

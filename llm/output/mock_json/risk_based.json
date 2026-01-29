@@ -1,0 +1,58 @@
+{
+  "requirementId": "REQ-203",
+  "ui": {
+    "featureName": "Money Transfer",
+    "scenarios": [
+      {
+        "name": "Transfer within same bank",
+        "risk": "LOW",
+        "steps": [
+          "User enters beneficiary details",
+          "User enters amount",
+          "User confirms transfer"
+        ]
+      },
+      {
+        "name": "Transfer to new beneficiary",
+        "risk": "HIGH",
+        "steps": [
+          "User adds new beneficiary",
+          "User enters OTP",
+          "User confirms transfer",
+          "Transfer is successful"
+        ]
+      }
+    ]
+  },
+  "api": {
+    "featureName": "Fund Transfer API",
+    "scenarios": [
+      {
+        "name": "Internal transfer",
+        "risk": "LOW",
+        "request": {
+          "fromAccount": "string",
+          "toAccount": "string",
+          "amount": 1000
+        },
+        "expectedResponse": {
+          "statusCode": 200
+        }
+      },
+      {
+        "name": "External transfer",
+        "risk": "HIGH",
+        "request": {
+          "fromAccount": "string",
+          "toAccount": "string",
+          "amount": 50000,
+          "otp": "string"
+        },
+        "expectedResponse": {
+          "statusCode": 200,
+          "bodyContains": ["transactionId"]
+        }
+      }
+    ]
+  }
+}

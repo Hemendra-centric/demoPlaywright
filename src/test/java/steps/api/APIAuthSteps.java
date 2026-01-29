@@ -7,8 +7,6 @@ import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.ConfigReader;
-import utils.FixtureLoader;
 
 /**
  * Step definitions for API authentication feature.

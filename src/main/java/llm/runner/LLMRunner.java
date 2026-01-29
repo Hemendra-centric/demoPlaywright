@@ -1,4 +1,4 @@
-package llm;
+package llm.runner;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -6,8 +6,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import com.aventstack.extentreports.gherkin.model.Then;
+import java.util.List;
+import llm.model.LLMTestPlan;
+import llm.parser.AmbiguityDetector;
+import llm.parser.FeatureFileGenerator;
+import llm.parser.LLMParser;
+import llm.parser.LLMValidator;
+import llm.parser.StepDefinitionGenerator;
 
 public class LLMRunner {
         public static void main(String[] args) throws Exception {
@@ -24,21 +29,30 @@ public class LLMRunner {
                                 "{{REQUIREMENT_TEXT}}",
                                 requirementText);
 
-                // Call LLM
-                // String llmResponse = callLLM(finalPrompt); // To be used for real api calls
-
-                // Write raw output
-                // Path outputPath = Path.of("llm/output/llm_raw_response.txt");
-                // Files.writeString(outputPath, llmResponse);
-
-                Path mockOutputPath = Path.of("llm/output/llm_raw_response.txt");
+                Path mockOutputPath = Path.of("llm/output/mock_json/risk_based.json");
                 String llmResponse = Files.readString(mockOutputPath);
+                if (llmResponse.contains("=")) {
+                        throw new RuntimeException(
+                                        "Invalid LLM output: Map-style syntax detected. Expected JSON.");
+                }
 
-                // Print to console (optional, just to verify)
-                System.out.println("=== MOCK LLM RESPONSE START ===");
-                System.out.println(llmResponse);
-                System.out.println("=== MOCK LLM RESPONSE END ===");
-                System.out.println("LLM response written to llm/output/llm_raw_response.txt");
+                LLMParser parser = new LLMParser();
+                LLMTestPlan plan = parser.parse(mockOutputPath.toFile());
+
+                LLMValidator.validate(plan);
+
+                List<String> ambiguities = AmbiguityDetector.detect(plan);
+                if (!ambiguities.isEmpty()) {
+                        System.out.println("Detected ambiguities:");
+                        ambiguities.forEach(System.out::println);
+                }
+
+                // Generate feature files
+                FeatureFileGenerator.generateFeatureFiles(plan);
+
+                // Genereate step definations
+                StepDefinitionGenerator.generateStepDefinitions();
+
         }
 
         private static String callLLM(String prompt) throws Exception {
