@@ -1,0 +1,89 @@
+{
+  "requirement_id": "REQ-123",
+  "requirement_summary": "User should be able to login using valid credentials",
+
+  "ambiguities": [
+    {
+      "type": "BUSINESS_RULE",
+      "question": "What happens after 3 consecutive failed login attempts?",
+      "severity": "HIGH"
+    },
+    {
+      "type": "VALIDATION",
+      "question": "Are special characters allowed in the password?",
+      "severity": "MEDIUM"
+    }
+  ],
+
+  "risk_classification": {
+    "happy": ["Successful login with valid credentials"],
+    "negative": [
+      "Login with invalid password",
+      "Login with non-existent user"
+    ],
+    "edge": [
+      "Password at maximum allowed length",
+      "Username with special characters"
+    ],
+    "boundary": [
+      "Password length exactly at minimum limit",
+      "Password length exactly at maximum limit"
+    ]
+  },
+
+  "ui_features": [
+    {
+      "feature_name": "ui_login.feature",
+      "tags": ["@REQ-123", "@UI", "@LOGIN"],
+      "scenarios": [
+        {
+          "scenario_name": "Successful login with valid credentials",
+          "risk_type": "happy",
+          "steps": [
+            "Given user is on the login page",
+            "When user enters valid username and password",
+            "And user clicks on login button",
+            "Then user should be redirected to dashboard"
+          ]
+        }
+      ]
+    }
+  ],
+
+  "api_features": [
+    {
+      "feature_name": "api_authentication.feature",
+      "tags": ["@REQ-123", "@API", "@AUTH"],
+      "endpoint": "/api/auth/login",
+      "method": "POST",
+      "request_parameters": [
+        "username",
+        "password"
+      ],
+      "expected_responses": [
+        {
+          "status_code": 200,
+          "description": "Authentication successful",
+          "risk_type": "happy"
+        },
+        {
+          "status_code": 401,
+          "description": "Invalid credentials",
+          "risk_type": "negative"
+        },
+        {
+          "status_code": 400,
+          "description": "Missing or invalid request parameters",
+          "risk_type": "boundary"
+        }
+      ]
+    }
+  ],
+
+  "traceability_map": {
+    "REQ-123": {
+      "ui": ["ui_login.feature"],
+      "api": ["api_authentication.feature"]
+    }
+  }
+}

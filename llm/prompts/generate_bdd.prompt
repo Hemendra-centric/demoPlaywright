@@ -1,0 +1,22 @@
+You are a test automation expert.
+
+Convert the following requirement into:
+1. A Cucumber feature file
+2. Java step definition skeletons
+
+Rules:
+- Do not generate selectors
+- Do not add assertions beyond "Then" statements
+- Use Given/When/Then annotations
+- Assume Playwright Java + Cucumber
+- Output ONLY in the following format:
+
+===FEATURE===
+<feature file content>
+
+===STEPS===
+<step definition skeleton>
+
+Requirement:
+{{REQUIREMENT_TEXT}}
+

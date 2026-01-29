@@ -1,0 +1,10 @@
+Feature: Login
+
+Background:
+User is on the login page
+
+Scenario: Successful login
+Given user enters valid username
+And user enters valid password
+When user clicks login
+Then user should see dashboard
