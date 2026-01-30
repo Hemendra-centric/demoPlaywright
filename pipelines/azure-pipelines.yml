@@ -188,3 +188,22 @@ stages:
               echo "✓ Cleanup completed"
             displayName: 'Clean Workspace'
             continueOnError: true
+
+# -----------------------------------------------------------------------------
+# Per-suite pipelines added: UI / API / Accessibility
+# Files added under the `pipelines/` folder:
+#   - pipelines/azure-pipelines-ui.yml
+#   - pipelines/azure-pipelines-api.yml
+#   - pipelines/azure-pipelines-accessibility.yml
+#
+# Features:
+#  - Parameters: env (QA/Dev), branch (main/hemendra), tags (e.g. @UI, @API, @Accessibility)
+#  - Trigger: pushes to 'main' and 'hemendra'
+#  - Scheduled nightly runs (see each file's schedule)
+#  - Test results are published as JUnit (from Surefire reports)
+#
+# How to run manually:
+#  - In Azure DevOps create a new pipeline and point to one of the files above
+#  - Set runtime parameters: env (QA/Dev), branch (main/hemendra), tags (e.g. @UI)
+#  - Or use 'Run pipeline' and select the YAML file from this repository
+# -----------------------------------------------------------------------------

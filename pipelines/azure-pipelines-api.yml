@@ -1,0 +1,58 @@
+trigger:
+  branches:
+    include:
+      - main
+      - hemendra
+
+schedules:
+  - cron: "0 3 * * *"
+    displayName: 'Nightly - API'
+    branches:
+      include:
+        - main
+    always: true
+
+parameters:
+  - name: env
+    type: string
+    default: QA
+    values:
+      - QA
+      - Dev
+  - name: branch
+    type: string
+    default: main
+    values:
+      - main
+      - hemendra
+  - name: tags
+    type: string
+    default: '@API'
+
+variables:
+  env: ${{ parameters.env }}
+  tags: ${{ parameters.tags }}
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: JavaToolInstaller@0
+    displayName: 'Set up Java 17'
+    inputs:
+      versionSpec: '17'
+
+  - task: Maven@3
+    displayName: 'Run API tests (Maven)'
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'clean test'
+      options: '-Denv=$(env) -Dcucumber.filter.tags="$(tags)"'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish API Test Results'
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+      mergeTestResults: true
+      failTaskOnFailedTests: true
