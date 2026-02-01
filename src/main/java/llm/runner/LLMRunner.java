@@ -29,7 +29,7 @@ public class LLMRunner {
                                 "{{REQUIREMENT_TEXT}}",
                                 requirementText);
 
-                Path mockOutputPath = Path.of("llm/output/mock_json/risk_based.json");
+                Path mockOutputPath = Path.of("llm/output/mock_json/happy_path.json");
                 String llmResponse = Files.readString(mockOutputPath);
                 if (llmResponse.contains("=")) {
                         throw new RuntimeException(
